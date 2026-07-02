@@ -16,10 +16,17 @@ class Api(BaseApi):
     def _register_doc(self, app_or_blueprint):
         if self._add_specs and self._doc:
             # Register documentation before root if enabled
-            app_or_blueprint.add_url_rule(self._doc, 'doc', self.render_doc)
-        # skip default root route
-        # app_or_blueprint.add_url_rule(self.prefix or '/', 'root',
-        #                               self.render_root)
+            app_or_blueprint.add_url_rule(self._doc, "doc", self.render_doc)
+        if not self.app.config.get("RESTX_NO_DEFAULT_ROOT_RULE"):
+            app_or_blueprint.add_url_rule(self.prefix or "/", "root", self.render_root)
+
+    def register_resource(self, namespace, resource, *urls, **kwargs):
+        if "/" in urls and not self.app.config.get("RESTX_NO_DEFAULT_ROOT_RULE"):
+            self.app.logger.warning("Attempting to register a resource to '/', which overlaps the default RESTX root rule.")
+            self.app.logger.warning("Set the app config variable RESTX_NO_DEFAULT_ROOT_RULE to True before initializing the Api to prevent registering the default RESTX root rule.")
+        elif "/" in urls and kwargs.get("endpoint") != "root":
+            self.app.logger.warning("The '/' resource rule must be declared with endpoint='root'")
+        super().register_resource(namespace, resource, *urls, **kwargs)
 
     def create_model(self, name, fields):
         """Helper for creating api models with ordered fields
