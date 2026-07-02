@@ -31,10 +31,10 @@ Environment variables
 | `POOL_TIMEOUT`               | `30`                        | Time (in seconds) to wait for a connection to become available.                     |
 | `POOL_RECYCLE`               | `-1`                        | Time (in seconds) after idle connections will be resetted.                          |
 | `CONFIG_PATH`                | `/srv/qwc_service/config`   | The path under where QWC Services' configuration files reside.                      |
-| `ENABLED_ENDPOINTS`          | ``                          | List of names of endpoints to enable \[*\]. If non-empty, only these endpoints will be enabled.|
-| `DISABLED_ENDPOINTS`         | ``                          | List of names of endpoints to disable \[*\].                                              |
+| `ENABLED_ENDPOINTS`          | ``                          | Comma-separated list of names of endpoints to enable \[*\]. If non-empty, only these endpoints will be enabled.|
+| `DISABLED_ENDPOINTS`         | ``                          | Comma-separated list of names of endpoints to disable \[*\].                                              |
 
-\[*\] If the service exposes registers its API through `qwc_services_core.api.Api`.
+\[*\] If the service exposes registers its API through `qwc_services_core.api.Api`. To see which endpoints a service registers, set the environment variable `FLASK_DEBUG=1`.
 
 Development
 ===========
