@@ -3,6 +3,8 @@ from collections import OrderedDict
 from werkzeug.datastructures import MultiDict
 from flask_restx.reqparse import Argument
 
+import os
+
 
 class Api(BaseApi):
     """Custom Flask-RESTPlus Api subclass for overriding default root route
@@ -36,6 +38,25 @@ class Api(BaseApi):
         """
         return create_model(self, name, fields)
 
+    def route(self, *urls, **kwargs):
+        """Override for flask_restx @api.route but registers the resource only if
+           ENABLED_ENDPOINTS is empty or if ENABLED_ENDPOINTS contains the route name
+           and DISABLED_ENDPOINTS does not contain the route name.
+        """
+
+        whitelist = list(filter(bool, os.getenv("ENABLED_ENDPOINTS", "").split(",")))
+        blacklist = list(filter(bool, os.getenv("DISABLED_ENDPOINTS", "").split(",")))
+
+        def decorator(cls):
+            route_name = kwargs.get("endpoint") or self.default_endpoint(cls, self.default_namespace)
+            if (not whitelist or route_name in whitelist) and route_name not in blacklist:
+                self.app.logger.debug("Registering route %s with URL(s) %s" % (route_name, ", ".join(urls)))
+                return self.default_namespace.route(*urls, **kwargs)(cls)
+
+            # Don't register -> won't appear in Swagger either.
+            return cls
+
+        return decorator
 
 def create_model(api, name, fields):
     """Helper for creating api models with ordered fields
