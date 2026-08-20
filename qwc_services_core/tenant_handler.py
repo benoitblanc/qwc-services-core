@@ -1,6 +1,7 @@
 import datetime
 import os
 import re
+import hashlib
 from flask import request
 from flask.sessions import SecureCookieSessionInterface
 
@@ -224,4 +225,5 @@ class TenantSessionInterface(SecureCookieSessionInterface, TenantHandlerBase):
             prefix = self.tenant_path_prefix()
         # Set config as a side effect
         app.config['JWT_ACCESS_COOKIE_PATH'] = prefix
+        app.config['JWT_SECRET_KEY'] = hashlib.sha1((app.config['JWT_SECRET_KEY_BASE'] + prefix).encode()).hexdigest()
         return prefix
