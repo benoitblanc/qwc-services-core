@@ -225,6 +225,7 @@ class TenantSessionInterface(SecureCookieSessionInterface, TenantHandlerBase):
             prefix = self.tenant_path_prefix()
         # Set config as a side effect
         app.config['JWT_ACCESS_COOKIE_PATH'] = prefix
-        # Set a unique JWT_SECRET_KEY per cookie path
-        app.config['JWT_SECRET_KEY'] = hashlib.sha1((app.config['JWT_SECRET_KEY_BASE'] + prefix).encode()).hexdigest()
+        if self.is_multi():
+            # Set a unique JWT_SECRET_KEY per cookie path
+            app.config['JWT_SECRET_KEY'] = hashlib.sha1((app.config['JWT_SECRET_KEY_BASE'] + prefix).encode()).hexdigest()
         return prefix
